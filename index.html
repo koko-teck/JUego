@@ -60,6 +60,16 @@
             <div><p class="section-label">Tu próxima aventura</p><h2>Elige una ruta</h2></div>
             <span class="progress-chip" id="progress-chip">0 / 10</span>
           </div>
+          <section class="ranking-preview" aria-labelledby="ranking-heading">
+            <div class="ranking-preview-heading">
+              <div><p class="section-label">RETO ENTRE AMIGOS</p><h3 id="ranking-heading">Ranking global</h3></div>
+              <button class="ranking-open-button" id="open-ranking" type="button">Ver tabla <span aria-hidden="true">↗</span></button>
+            </div>
+            <ol class="ranking-preview-list" id="ranking-preview-list" aria-live="polite">
+              <li class="ranking-message">El ranking se carga cuando esta demo esté conectada a su servidor.</li>
+            </ol>
+            <p class="ranking-sync-status" id="ranking-sync-status" role="status" aria-live="polite"></p>
+          </section>
           <div class="level-list" id="level-list" aria-label="Niveles"></div>
           <button class="parent-button" type="button" id="parent-button">
             <span aria-hidden="true">🔒</span> Zona familias <span class="hold-note">mantén 2 s</span>
@@ -135,10 +145,41 @@
         <section class="dialog-card compact-card family-card" role="dialog" aria-modal="true" aria-labelledby="family-title">
           <button class="modal-close" id="family-close" type="button" aria-label="Cerrar">×</button>
           <div class="modal-icon" aria-hidden="true">👨‍👩‍👧</div>
-          <p class="eyebrow">ESPACIO PARA ADULTOS</p><h2 id="family-title">Más aventuras, más adelante.</h2>
-          <p class="modal-copy">Aquí podrían aparecer rutas opcionales para jugar en familia. Este demo no ofrece compras, no procesa pagos y no se conecta a ningún servicio.</p>
-          <div class="family-placeholder"><span aria-hidden="true">🔒</span><span><strong>Paquetes de rutas opcionales</strong><br />Vista de ejemplo · no disponible</span></div>
-          <button class="quiet-button full-button" id="family-done" type="button">Entendido</button>
+          <p class="eyebrow">ESPACIO PARA ADULTOS</p><h2 id="family-title">Zona familias</h2>
+          <div class="parent-confirmation" id="parent-confirmation">
+            <p class="modal-copy">El apodo y el puntaje serán públicos. Confirma que eres una persona adulta responsable antes de registrar a un jugador menor de edad.</p>
+            <button class="primary-button full-button" id="parent-confirm" type="button">Soy madre, padre o tutor <span aria-hidden="true">→</span></button>
+          </div>
+          <div id="parent-tools" hidden>
+          <p class="modal-copy">Para participar en el ranking público, una persona adulta puede registrar un apodo inventado. No uses nombres reales, datos de contacto ni información personal: el apodo y el puntaje serán visibles para todos.</p>
+          <form class="nickname-form" id="nickname-form">
+            <label for="nickname-input">Apodo público único</label>
+            <div class="nickname-row">
+              <input id="nickname-input" name="nickname" type="text" minlength="3" maxlength="16" pattern="[A-Za-z0-9_]{3,16}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ej.: CapitanNebula" required />
+              <button class="primary-button nickname-submit" type="submit">Registrar</button>
+            </div>
+            <p class="nickname-help">3–16 caracteres: letras sin acentos, números o _. No se piden cuentas, correo ni edad.</p>
+            <p class="form-feedback" id="nickname-feedback" role="status" aria-live="polite"></p>
+          </form>
+          <div class="family-placeholder"><span aria-hidden="true">🌟</span><span><strong>Contenido familiar adicional</strong><br />Vista de ejemplo · sin compras ni pagos</span></div>
+          <p class="service-status" id="parent-service-status" aria-live="polite">El ranking global requiere que la demo esté alojada en un servidor HTTPS común para todos los amigos.</p>
+          </div>
+          <button class="quiet-button full-button" id="family-done" type="button">Listo</button>
+        </section>
+      </div>
+
+      <div class="overlay" id="ranking-overlay" hidden>
+        <section class="dialog-card ranking-card" role="dialog" aria-modal="true" aria-labelledby="ranking-title">
+          <button class="modal-close" id="ranking-close" type="button" aria-label="Cerrar ranking">×</button>
+          <p class="eyebrow">AMIGOS · TODAS LAS RUTAS</p>
+          <h2 id="ranking-title">Ranking global</h2>
+          <p class="ranking-description">Los mejores puntajes acumulados de quienes juegan desde la misma versión de la aventura.</p>
+          <div class="ranking-player" id="ranking-player" hidden></div>
+          <ol class="ranking-list" id="ranking-list" aria-live="polite">
+            <li class="ranking-message">Conectando con el ranking…</li>
+          </ol>
+          <p class="ranking-privacy">Solo se publica el apodo inventado y el puntaje. El servidor guarda los mejores resultados para que se mantengan al cerrar el juego.</p>
+          <button class="quiet-button full-button" id="ranking-done" type="button">Cerrar</button>
         </section>
       </div>
 

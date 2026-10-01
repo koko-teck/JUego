@@ -118,10 +118,14 @@ const questionOverlay = document.querySelector("#question-overlay");
 const pauseOverlay = document.querySelector("#pause-overlay");
 const resultOverlay = document.querySelector("#result-overlay");
 const familyOverlay = document.querySelector("#family-overlay");
+const rankingOverlay = document.querySelector("#ranking-overlay");
 const progressKey = "turbomente-progress-v1";
+const playerKey = "turbomente-player-v1";
+const rankingLimit = 20;
 
 let selectedAge = "";
 let progressData = loadProgress();
+let playerData = loadPlayer();
 let currentLevel = 0;
 let lane = 1;
 let shields = 3;
@@ -142,9 +146,13 @@ let swipeStart = null;
 function loadProgress() {
   try {
     const saved = JSON.parse(localStorage.getItem(progressKey) || "{}");
+    const bestByLevel = Array.isArray(saved.bestByLevel)
+      ? levels.map((_, index) => Number.isFinite(saved.bestByLevel[index]) && saved.bestByLevel[index] >= 0 ? saved.bestByLevel[index] : 0)
+      : levels.map((_, index) => saved.completed?.includes(index) && index === saved.completed.find((level) => level >= 0) ? Math.max(0, saved.best || 0) : 0);
     return {
       completed: Array.isArray(saved.completed) ? saved.completed.filter((number) => Number.isInteger(number) && number >= 0 && number < levels.length) : [],
       best: Number.isFinite(saved.best) && saved.best >= 0 ? saved.best : 0,
+      bestByLevel,
     };
   } catch (error) {
     console.warn("No se pudo leer el progreso guardado.", error);
@@ -152,9 +160,42 @@ function loadProgress() {
   }
 }
 
+function loadPlayer() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(playerKey) || "null");
+    return saved && /^[A-Za-z0-9_]{3,16}$/.test(saved.nickname) && /^[a-f0-9]{64}$/.test(saved.token)
+      ? {
+        nickname: saved.nickname,
+        token: saved.token,
+        registered: saved.registered === true,
+        lastSubmittedScore: Number.isFinite(saved.lastSubmittedScore) ? saved.lastSubmittedScore : -1,
+      }
+      : { nickname: "", token: "", registered: false, lastSubmittedScore: -1 };
+  } catch (error) {
+    console.warn("No se pudo leer el apodo guardado.", error);
+    return { nickname: "", token: "", registered: false, lastSubmittedScore: -1 };
+  }
+}
+
+function savePlayer() {
+  try {
+    const { nickname, token, registered, lastSubmittedScore } = playerData;
+    localStorage.setItem(playerKey, JSON.stringify({ nickname, token, registered, lastSubmittedScore }));
+    return true;
+  } catch (error) {
+    console.warn("No se pudo guardar el apodo en este dispositivo.", error);
+    return false;
+  }
+}
+
 function saveProgress() {
   try {
-    localStorage.setItem(progressKey, JSON.stringify(progressData));
+    const { completed, bestByLevel } = progressData;
+    localStorage.setItem(progressKey, JSON.stringify({
+      completed,
+      bestByLevel,
+      best: bestByLevel.reduce((sum, value, index) => sum + (completed.includes(index) ? value : 0), 0),
+    }));
     return true;
   } catch (error) {
     console.warn("No se pudo guardar el progreso en este dispositivo.", error);
@@ -197,6 +238,135 @@ function renderLevels() {
     levelList.append(button);
   });
   document.querySelector("#progress-chip").textContent = `${progressData.completed.length} / ${levels.length}`;
+}
+
+function renderRankingRows(container, entries, compact = false) {
+  container.replaceChildren();
+  if (entries.length === 0) {
+    const empty = document.createElement("li");
+    empty.className = "ranking-message";
+    empty.textContent = "Todavía no hay pilotos. ¡Sé el primero en sumar puntos!";
+    container.append(empty);
+    return;
+  }
+  entries.slice(0, compact ? 3 : rankingLimit).forEach((entry, index) => {
+    const row = document.createElement("li");
+    row.className = "ranking-entry";
+    const place = document.createElement("span");
+    place.className = `ranking-place${index < 3 ? ` ranking-place-${index + 1}` : ""}`;
+    place.textContent = String(index + 1).padStart(2, "0");
+    const name = document.createElement("span");
+    name.className = "ranking-name";
+    name.textContent = entry.nickname;
+    const points = document.createElement("strong");
+    points.className = "ranking-points";
+    points.textContent = `${Number(entry.score).toLocaleString("es-ES")} pts`;
+    row.append(place, name, points);
+    container.append(row);
+  });
+}
+
+async function requestRanking(path, options = {}) {
+  const response = await fetch(`/api/ranking${path}`, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...options.headers },
+    cache: "no-store",
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    const error = new Error(result.error || "No se pudo completar la acción.");
+    error.status = response.status;
+    throw error;
+  }
+  return result;
+}
+
+function createPlayerToken() {
+  const bytes = new Uint8Array(32);
+  if (!globalThis.crypto?.getRandomValues) {
+    throw new Error("Este navegador no puede crear un identificador seguro. Abre la app desde HTTPS.");
+  }
+  globalThis.crypto.getRandomValues(bytes);
+  return [...bytes].map((value) => value.toString(16).padStart(2, "0")).join("");
+}
+
+function rankingOfflineMessage() {
+  return location.protocol === "file:"
+    ? "Para consultar el ranking global, abre la app desde la dirección HTTPS compartida con tus amigos."
+    : ["localhost", "127.0.0.1", "::1"].includes(location.hostname)
+      ? "El servidor local del ranking no está activo. Inicia npm start dentro de mision-turbomente."
+    : "No se pudo conectar al servidor del ranking. Tu progreso local sigue guardado; prueba de nuevo más tarde.";
+}
+
+async function refreshRanking() {
+  const compactStatus = document.querySelector("#ranking-preview-list");
+  const fullStatus = document.querySelector("#ranking-list");
+  try {
+    const query = playerData.registered ? `?nickname=${encodeURIComponent(playerData.nickname)}` : "";
+    const result = await requestRanking(query);
+    renderRankingRows(compactStatus, result.ranking, true);
+    renderRankingRows(fullStatus, result.ranking);
+    const playerStatus = document.querySelector("#ranking-player");
+    if (playerData.registered && result.player) {
+      playerStatus.hidden = false;
+      playerStatus.textContent = `Tu puesto: ${result.player.rank} · ${result.player.score.toLocaleString("es-ES")} pts`;
+    } else {
+      playerStatus.hidden = true;
+    }
+    document.querySelector("#parent-service-status").textContent = "Ranking compartido activo: los puntajes se publican para todos los amigos.";
+    document.querySelector("#ranking-sync-status").textContent = "";
+  } catch (error) {
+    const message = rankingOfflineMessage();
+    for (const container of [compactStatus, fullStatus]) {
+      const item = document.createElement("li");
+      item.className = "ranking-message";
+      item.textContent = message;
+      container.replaceChildren(item);
+    }
+    document.querySelector("#parent-service-status").textContent = message;
+    document.querySelector("#ranking-sync-status").textContent = "";
+  }
+}
+
+function totalCompletedScore() {
+  return progressData.completed.reduce((sum, index) => sum + progressData.bestByLevel[index], 0);
+}
+
+async function submitGlobalScore() {
+  if (!playerData.registered || !playerData.nickname || !progressData.completed.length) return;
+  const scoreTotal = totalCompletedScore();
+  if (scoreTotal <= playerData.lastSubmittedScore) return;
+  try {
+    await requestRanking("/score", {
+      method: "POST",
+      body: JSON.stringify({
+        nickname: playerData.nickname,
+        score: scoreTotal,
+        completedLevels: progressData.completed.length,
+      }),
+      headers: { Authorization: `Bearer ${playerData.token}` },
+    });
+    playerData.lastSubmittedScore = scoreTotal;
+    savePlayer();
+    const status = `¡Puntaje publicado! ${scoreTotal.toLocaleString("es-ES")} puntos.`;
+    await refreshRanking();
+    document.querySelector("#nickname-feedback").textContent = status;
+    document.querySelector("#ranking-sync-status").textContent = status;
+  } catch (error) {
+    const message = error.status === 404
+      ? "El servidor aún no ofrece el ranking global. Pide a la familia que lo configure."
+      : error.status === 401
+        ? "No se pudo verificar este apodo. Una persona adulta puede elegir uno nuevo."
+        : rankingOfflineMessage();
+    document.querySelector("#nickname-feedback").textContent = message;
+    document.querySelector("#ranking-sync-status").textContent = message;
+  }
+}
+
+function openRanking() {
+  rankingOverlay.hidden = false;
+  document.querySelector("#ranking-close").focus();
+  refreshRanking().then(submitGlobalScore);
 }
 
 function chooseAge(button) {
@@ -408,12 +578,14 @@ function finishLevel(won) {
   if (won) {
     if (!progressData.completed.includes(currentLevel)) progressData.completed.push(currentLevel);
     progressData.completed.sort((a, b) => a - b);
-    progressData.best = Math.max(progressData.best, score);
+    progressData.bestByLevel[currentLevel] = Math.max(progressData.bestByLevel[currentLevel], score);
+    progressData.best = totalCompletedScore();
     const isSaved = saveProgress();
     document.querySelector("#privacy-note").textContent = isSaved
       ? "Tu progreso se guarda solo en este dispositivo. Sin cuentas, anuncios ni compras."
       : "No se pudo guardar el progreso en este navegador. ¡Puedes seguir jugando!";
     renderLevels();
+    submitGlobalScore();
     document.querySelector("#result-icon").textContent = "🏆";
     document.querySelector("#result-kicker").textContent = "¡RUTA COMPLETADA!";
     document.querySelector("#result-title").textContent = currentLevel === levels.length - 1 ? "¡Misión cumplida!" : "¡Lo lograste!";
@@ -452,8 +624,10 @@ function goHome() {
 }
 
 function openFamilySpace() {
+  document.querySelector("#parent-confirmation").hidden = false;
+  document.querySelector("#parent-tools").hidden = true;
   familyOverlay.hidden = false;
-  document.querySelector("#family-done").focus();
+  document.querySelector("#parent-confirm").focus();
 }
 
 function holdFamilyButton(event) {
@@ -502,11 +676,70 @@ document.querySelector("#parent-button").addEventListener("pointerleave", cancel
 document.querySelector("#parent-button").addEventListener("pointercancel", cancelFamilyHold);
 document.querySelector("#family-close").addEventListener("click", () => { familyOverlay.hidden = true; });
 document.querySelector("#family-done").addEventListener("click", () => { familyOverlay.hidden = true; });
+document.querySelector("#parent-confirm").addEventListener("click", () => {
+  document.querySelector("#parent-confirmation").hidden = true;
+  document.querySelector("#parent-tools").hidden = false;
+  document.querySelector("#nickname-input").focus();
+});
 familyOverlay.addEventListener("click", (event) => {
   if (event.target === familyOverlay) familyOverlay.hidden = true;
 });
+document.querySelector("#open-ranking").addEventListener("click", openRanking);
+document.querySelector("#ranking-close").addEventListener("click", () => { rankingOverlay.hidden = true; });
+document.querySelector("#ranking-done").addEventListener("click", () => { rankingOverlay.hidden = true; });
+rankingOverlay.addEventListener("click", (event) => {
+  if (event.target === rankingOverlay) rankingOverlay.hidden = true;
+});
+document.querySelector("#nickname-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  if (!form.reportValidity()) return;
+  const nickname = document.querySelector("#nickname-input").value.trim();
+  const feedback = document.querySelector("#nickname-feedback");
+  const submitButton = form.querySelector("button[type=\"submit\"]");
+  feedback.textContent = "Comprobando que el apodo esté disponible…";
+  try {
+    const token = playerData.token || createPlayerToken();
+    playerData = { nickname, token, registered: false, lastSubmittedScore: -1 };
+    if (!savePlayer()) {
+      playerData = { nickname: "", token: "", registered: false, lastSubmittedScore: -1 };
+      feedback.textContent = "No se pudo guardar un identificador seguro en este dispositivo. Libera espacio e inténtalo de nuevo.";
+      return;
+    }
+    document.querySelector("#nickname-input").disabled = true;
+    submitButton.disabled = true;
+    const result = await requestRanking("/register", {
+      method: "POST",
+      body: JSON.stringify({ nickname, token }),
+    });
+    playerData = { nickname: result.player.nickname, token, registered: true, lastSubmittedScore: -1 };
+    if (!savePlayer()) {
+      feedback.textContent = "No se pudo guardar este apodo en el dispositivo. Libera espacio e inténtalo de nuevo.";
+      return;
+    }
+    document.querySelector("#nickname-input").value = result.player.nickname;
+    feedback.textContent = `¡Apodo registrado! ${result.player.nickname} está listo para competir.`;
+    document.querySelector("#nickname-input").disabled = true;
+    form.querySelector("button[type=\"submit\"]").disabled = true;
+    await refreshRanking();
+    await submitGlobalScore();
+  } catch (error) {
+    if (error.status === 409) {
+      playerData = { nickname: "", token: "", registered: false, lastSubmittedScore: -1 };
+      savePlayer();
+      document.querySelector("#nickname-input").disabled = false;
+      submitButton.disabled = false;
+      feedback.textContent = "Ese apodo ya está en uso. Prueba con otro inventado que no identifique a nadie.";
+    } else {
+      document.querySelector("#nickname-input").disabled = false;
+      submitButton.disabled = false;
+      feedback.textContent = error.status === 400 || error.status === 503 ? error.message : rankingOfflineMessage();
+    }
+  }
+});
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !familyOverlay.hidden) familyOverlay.hidden = true;
+  if (event.key === "Escape" && !rankingOverlay.hidden) rankingOverlay.hidden = true;
   if (gameScreen.hidden || paused) return;
   if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") {
     event.preventDefault();
@@ -518,6 +751,12 @@ document.addEventListener("keydown", (event) => {
 });
 
 renderLevels();
+if (playerData.nickname) {
+  document.querySelector("#nickname-input").value = playerData.nickname;
+  document.querySelector("#nickname-input").disabled = playerData.registered;
+  document.querySelector("#nickname-form button[type=\"submit\"]").disabled = playerData.registered;
+}
+refreshRanking();
 
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
   navigator.serviceWorker.register("./sw.js").catch((error) => {

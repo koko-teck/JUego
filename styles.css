@@ -75,6 +75,20 @@ h1, h2, p { margin-top: 0; }
 .mission-heading .section-label { margin-bottom: 5px; color: #9ba8ca; font-size: 9px; }
 .mission-heading h2 { margin: 0; font-size: 19px; letter-spacing: -.04em; }
 .progress-chip { padding: 6px 9px; border-radius: 99px; background: #10172e; color: var(--yellow); font-size: 10px; font-weight: 900; }
+.ranking-preview { padding: 13px 17px 10px; border-top: 1px solid #ffffff12; border-bottom: 1px solid #ffffff12; background: #10172e3d; }
+.ranking-preview-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ranking-preview-heading .section-label { margin-bottom: 4px; color: #9ba8ca; font-size: 8px; }
+.ranking-preview-heading h3 { margin: 0; font-size: 14px; letter-spacing: -.02em; }
+.ranking-open-button { min-height: 33px; padding: 6px 10px; border: 1px solid #62e8e244; border-radius: 10px; background: #62e8e20d; color: var(--cyan); font-size: 10px; font-weight: 800; cursor: pointer; }
+.ranking-open-button span { margin-left: 3px; }
+.ranking-preview-list, .ranking-list { display: grid; gap: 6px; padding: 7px 0 0; margin: 0; list-style: none; }
+.ranking-entry { min-width: 0; min-height: 27px; display: grid; grid-template-columns: 25px 1fr auto; align-items: center; gap: 8px; }
+.ranking-place { color: #9ba8ca; font-size: 10px; font-weight: 900; }
+.ranking-place-1 { color: var(--yellow); }.ranking-place-2 { color: #d1def5; }.ranking-place-3 { color: #e7a77e; }
+.ranking-name { overflow: hidden; color: #edf2ff; font-size: 11px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.ranking-points { color: var(--cyan); font-size: 10px; white-space: nowrap; }
+.ranking-message { padding: 7px 0 1px; color: #9ba8c8; font-size: 10px; line-height: 1.55; list-style: none; }
+.ranking-sync-status { margin: 2px 0 0; color: #aebbd6; font-size: 9px; line-height: 1.5; }
 .level-list { display: grid; max-height: min(52vh, 440px); gap: 8px; overflow-y: auto; padding: 0 13px; overscroll-behavior: contain; scrollbar-color: #62e8e255 transparent; scrollbar-width: thin; }
 .level-card { width: 100%; min-height: 58px; display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 11px; padding: 8px 11px; border: 1px solid #ffffff13; border-radius: 14px; background: #ffffff07; text-align: left; cursor: pointer; transition: transform .15s ease, border-color .15s ease, background .15s ease; }
 .level-card:not(:disabled):hover { transform: translateY(-2px); border-color: #62e8e280; background: #62e8e20d; }
@@ -180,6 +194,26 @@ h1, h2, p { margin-top: 0; }
 .family-placeholder { display: flex; align-items: center; gap: 11px; margin: 14px 0 16px; padding: 13px; border: 1px dashed #ffffff31; border-radius: 13px; background: #ffffff07; color: #aeb8d4; font-size: 10px; line-height: 1.6; text-align: left; }
 .family-placeholder > span:first-child { font-size: 19px; }
 .family-placeholder strong { color: var(--ink); font-size: 11px; }
+.nickname-form { margin: 17px 0 14px; padding: 14px; border: 1px solid #ffffff20; border-radius: 14px; background: #10172e4a; text-align: left; }
+.nickname-form label { display: block; margin-bottom: 8px; color: var(--ink); font-size: 12px; font-weight: 800; }
+.nickname-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; }
+.nickname-row input { width: 100%; min-width: 0; min-height: 43px; padding: 9px 10px; border: 1px solid #ffffff2c; border-radius: 11px; background: #0e1530; color: var(--ink); font: inherit; font-size: 12px; }
+.nickname-row input:focus { border-color: var(--cyan); outline: 2px solid #62e8e230; }
+.nickname-row input:disabled { opacity: .72; }
+.nickname-row input::placeholder { color: #8490af; }
+.nickname-submit { min-height: 43px; padding: 0 13px; border: 0; border-radius: 11px; font-size: 11px; font-weight: 900; cursor: pointer; }
+.nickname-submit:disabled { opacity: .55; cursor: default; }
+.nickname-help, .ranking-privacy { margin: 8px 0 0; color: #aab5d0; font-size: 10px; line-height: 1.55; }
+.form-feedback { min-height: 15px; margin: 8px 0 0; color: var(--yellow); font-size: 10px; line-height: 1.5; }
+.service-status { margin: 8px 2px 0; color: #9da9c7; font-size: 10px; line-height: 1.55; }
+.ranking-card { width: min(100%, 460px); padding: 29px 24px 20px; }
+.ranking-card h2 { margin: 8px 0 7px; font-size: 25px; }
+.ranking-description { max-width: 350px; margin: 0 auto 9px; color: #b7c1db; font-size: 11px; line-height: 1.6; }
+.ranking-list { max-height: min(48vh, 370px); overflow-y: auto; padding: 12px 14px; margin-top: 10px; border: 1px solid #ffffff19; border-radius: 13px; background: #10172e61; overscroll-behavior: contain; scrollbar-color: #62e8e255 transparent; scrollbar-width: thin; }
+.ranking-list .ranking-entry { min-height: 35px; grid-template-columns: 32px 1fr auto; border-bottom: 1px solid #ffffff0d; }
+.ranking-list .ranking-name { font-size: 13px; }
+.ranking-list .ranking-points { font-size: 12px; }
+.ranking-player { padding: 9px 12px; border: 1px solid #62e8e257; border-radius: 11px; background: #62e8e20e; color: var(--cyan); font-size: 12px; font-weight: 900; text-align: left; }
 
 @keyframes twinkle { to { opacity: .45; transform: scale(.75); } }
 @keyframes road-flow { to { background-position-y: 68px; } }
@@ -217,6 +251,8 @@ h1, h2, p { margin-top: 0; }
   .game-controls { gap: 9px; }
   .game-controls p { font-size: 8px; }
   .race-scene { min-height: 245px; }
+  .ranking-preview { padding-right: 12px; padding-left: 12px; }
+  .ranking-entry { gap: 5px; }
 }
 
 @media (orientation: landscape) and (max-height: 600px) {
