@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#11120f" />
+    <meta
+      name="description"
+      content="chicho stilo: cuidado capilar de alto rendimiento, productos seleccionados y servicios de peluquería en un solo lugar."
+    />
+    <title>chicho stilo — Cabello, elevado</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <header class="site-header">
+      <a class="wordmark" href="#inicio" aria-label="chicho stilo, inicio">chicho stilo</a>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a href="#tienda">Tienda</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#estudio">El estudio</a>
+      </nav>
+      <button class="cart-trigger" type="button" data-open-cart aria-label="Abrir bolsa, 0 artículos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 12H4L5 8Z" /><path d="M9 9V6a3 3 0 0 1 6 0v3" /></svg>
+        <span class="cart-label">Bolsa</span>
+        <span class="cart-count" aria-live="polite">0</span>
+      </button>
+    </header>
+
+    <main id="contenido">
+      <section class="hero" id="inicio" aria-labelledby="hero-title">
+        <img
+          class="hero-image"
+          src="https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=2200&q=88"
+          alt="Detalle de un cabello largo y brillante"
+          fetchpriority="high"
+        />
+        <div class="hero-shade"></div>
+        <div class="hero-content">
+          <p class="eyebrow"><span class="status-dot"></span> Cuidado capilar, otra frecuencia</p>
+          <h1 id="hero-title">Tu pelo.<br /><span>Tu lenguaje.</span></h1>
+          <p class="hero-copy">Rituales expertos y esenciales elegidos para que tu cabello se sienta tan bien como se ve.</p>
+          <div class="hero-actions">
+            <a class="button button-lime" href="#tienda">Descubrir la tienda <span aria-hidden="true">↗</span></a>
+            <a class="text-link" href="#servicios">Explorar servicios <span aria-hidden="true">↓</span></a>
+          </div>
+        </div>
+        <div class="hero-caption"><span><span class="brand-case">chicho stilo</span> / ESTUDIO</span><span>El cuidado empieza por escuchar</span></div>
+        <div class="hero-vertical" aria-hidden="true">chicho stilo · ESTUDIO · <span data-current-year>2026</span></div>
+      </section>
+
+      <section class="ticker" aria-label="Nuestra filosofía">
+        <div class="ticker-track">
+          <span>BUEN CABELLO, SIN COMPLICACIONES</span><i aria-hidden="true">✳</i>
+          <span>RITUALES QUE SE SIENTEN</span><i aria-hidden="true">✳</i>
+          <span>HECHO PARA TU TEXTURA</span><i aria-hidden="true">✳</i>
+          <span aria-hidden="true">BUEN CABELLO, SIN COMPLICACIONES</span><i aria-hidden="true">✳</i>
+          <span aria-hidden="true">RITUALES QUE SE SIENTEN</span><i aria-hidden="true">✳</i>
+        </div>
+      </section>
+
+      <section class="section shop-section" id="tienda" aria-labelledby="shop-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">01 — Selección de estudio</p>
+            <h2 id="shop-title">El ritual <span>correcto.</span></h2>
+          </div>
+          <p class="section-intro">Fórmulas de alto rendimiento, elegidas por nuestro equipo para acompañar cada tipo de cabello.</p>
+        </div>
+        <div class="catalog-toolbar">
+          <div class="filter-list" role="group" aria-label="Filtrar productos">
+            <button class="filter-button is-active" type="button" data-filter="todos" aria-pressed="true">Todo <span>06</span></button>
+            <button class="filter-button" type="button" data-filter="limpieza" aria-pressed="false">Limpieza</button>
+            <button class="filter-button" type="button" data-filter="tratamiento" aria-pressed="false">Tratamiento</button>
+            <button class="filter-button" type="button" data-filter="styling" aria-pressed="false">Styling</button>
+          </div>
+          <span class="catalog-note">Selección chicho stilo <span aria-hidden="true">✳</span></span>
+        </div>
+        <div class="product-grid">
+          <article class="product-card" data-category="limpieza">
+            <div class="product-image image-sand">
+              <img src="https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=900&q=82" alt="Frasco de cuidado capilar sobre fondo claro" loading="lazy" />
+              <span class="product-index">01 / 06</span>
+              <span class="product-badge">Más elegido</span>
+            </div>
+            <div class="product-meta"><span>LIMPIEZA · TODO TIPO</span><span>250 ML</span></div>
+            <div class="product-title-row"><h3>Shampoo Reset</h3><span class="product-price">$ 24.900</span></div>
+            <p class="product-description">Limpieza suave que devuelve ligereza y movimiento.</p>
+            <button class="add-button" type="button" data-add="Shampoo Reset" data-price="24900">Sumar a mi bolsa <span aria-hidden="true">+</span></button>
+          </article>
+          <article class="product-card" data-category="tratamiento">
+            <div class="product-image image-rose">
+              <img src="https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=900&q=82" alt="Producto de belleza en envase minimalista" loading="lazy" />
+              <span class="product-index">02 / 06</span>
+            </div>
+            <div class="product-meta"><span>TRATAMIENTO · REPARACIÓN</span><span>200 ML</span></div>
+            <div class="product-title-row"><h3>Mascarilla Soft Repair</h3><span class="product-price">$ 31.500</span></div>
+            <p class="product-description">Nutrición profunda, sin peso. Un reset semanal.</p>
+            <button class="add-button" type="button" data-add="Mascarilla Soft Repair" data-price="31500">Sumar a mi bolsa <span aria-hidden="true">+</span></button>
+          </article>
+          <article class="product-card" data-category="styling">
+            <div class="product-image image-olive">
+              <img src="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=900&q=82" alt="Sérum cosmético con dosificador" loading="lazy" />
+              <span class="product-index">03 / 06</span>
+              <span class="product-badge product-badge-dark">Edición estudio</span>
+            </div>
+            <div class="product-meta"><span>STYLING · BRILLO</span><span>50 ML</span></div>
+            <div class="product-title-row"><h3>Sérum Glass</h3><span class="product-price">$ 28.000</span></div>
+            <p class="product-description">Controla el frizz y deja un acabado espejo.</p>
+            <button class="add-button" type="button" data-add="Sérum Glass" data-price="28000">Sumar a mi bolsa <span aria-hidden="true">+</span></button>
+          </article>
+          <article class="product-card" data-category="limpieza">
+            <div class="product-image image-blue">
+              <img src="https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=900&q=82" alt="Botellas de productos para cuidado personal" loading="lazy" />
+              <span class="product-index">04 / 06</span>
+            </div>
+            <div class="product-meta"><span>LIMPIEZA · HIDRATACIÓN</span><span>250 ML</span></div>
+            <div class="product-title-row"><h3>Acondicionador Flow</h3><span class="product-price">$ 26.500</span></div>
+            <p class="product-description">Desenreda, suaviza y deja el pelo fácil de llevar.</p>
+            <button class="add-button" type="button" data-add="Acondicionador Flow" data-price="26500">Sumar a mi bolsa <span aria-hidden="true">+</span></button>
+          </article>
+          <article class="product-card" data-category="tratamiento">
+            <div class="product-image image-purple">
+              <img src="https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?auto=format&fit=crop&w=900&q=82" alt="Envase de tratamiento para el cabello" loading="lazy" />
+              <span class="product-index">05 / 06</span>
+            </div>
+            <div class="product-meta"><span>TRATAMIENTO · SIN ENJUAGUE</span><span>150 ML</span></div>
+            <div class="product-title-row"><h3>Leave-in Cloud</h3><span class="product-price">$ 29.900</span></div>
+            <p class="product-description">Protección térmica y suavidad para todos los días.</p>
+            <button class="add-button" type="button" data-add="Leave-in Cloud" data-price="29900">Sumar a mi bolsa <span aria-hidden="true">+</span></button>
+          </article>
+          <article class="product-card" data-category="styling">
+            <div class="product-image image-peach">
+              <img src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=82" alt="Spray de belleza de diseño minimalista" loading="lazy" />
+              <span class="product-index">06 / 06</span>
+              <span class="product-badge">Nuevo</span>
+            </div>
+            <div class="product-meta"><span>STYLING · TEXTURA</span><span>180 ML</span></div>
+            <div class="product-title-row"><h3>Spray Texture</h3><span class="product-price">$ 22.500</span></div>
+            <p class="product-description">Volumen flexible y textura natural, sin rigidez.</p>
+            <button class="add-button" type="button" data-add="Spray Texture" data-price="22500">Sumar a mi bolsa <span aria-hidden="true">+</span></button>
+          </article>
+        </div>
+        <p class="catalog-footnote">Precios de referencia; moneda, disponibilidad y total se confirman al coordinar tu pedido.</p>
+      </section>
+
+      <section class="service-section" id="servicios" aria-labelledby="services-title">
+        <div class="service-photo">
+          <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1500&q=86" alt="Interior luminoso de un estudio de peluquería" loading="lazy" />
+          <span class="photo-stamp">chicho<br />stilo</span>
+        </div>
+        <div class="service-copy">
+          <p class="eyebrow">02 — Tiempo para vos</p>
+          <h2 id="services-title">No es solo<br />un corte.<br /><span>Es un reset.</span></h2>
+          <p class="service-intro">Un espacio para bajar el ruido, entender lo que tu pelo necesita y salir sintiéndote vos, en tu mejor versión.</p>
+          <div class="service-list">
+            <div class="service-item"><span class="service-number">01</span><div><h3>Corte & forma</h3><p>Un diseño que acompaña tu textura y tu ritmo.</p></div><span class="service-duration">45–60 MIN</span></div>
+            <div class="service-item"><span class="service-number">02</span><div><h3>Color consciente</h3><p>Dimensión, luz y un plan de cuidado realista.</p></div><span class="service-duration">A CONSULTAR</span></div>
+            <div class="service-item"><span class="service-number">03</span><div><h3>Ritual de reparación</h3><p>Diagnóstico y tratamiento hecho a medida.</p></div><span class="service-duration">60 MIN</span></div>
+          </div>
+          <button class="button button-lime" type="button" data-open-booking>Consultar disponibilidad <span aria-hidden="true">↗</span></button>
+          <p class="honesty-note">La solicitud no confirma una reserva; coordinamos el horario personalmente.</p>
+        </div>
+      </section>
+
+      <section class="manifesto-section" id="estudio" aria-labelledby="manifesto-title">
+        <div class="manifesto-mark" aria-hidden="true">chicho<br /><span>stilo</span></div>
+        <div class="manifesto-copy">
+          <p class="eyebrow">03 — Nuestra forma de hacer</p>
+          <h2 id="manifesto-title">Menos promesas.<br /><span>Más cuidado real.</span></h2>
+          <p>Creemos en fórmulas que funcionan, asesoría honesta y belleza que no pide permiso. Cada recomendación empieza escuchándote: tu pelo, tus tiempos, tu manera de ser.</p>
+          <a class="text-link" href="#contacto">Conocé el estudio <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="manifesto-stat"><span>100%</span><p>Asesoría pensada<br />para vos</p></div>
+      </section>
+
+      <section class="contact-section" id="contacto" aria-labelledby="contact-title">
+        <div>
+          <p class="eyebrow">Hablemos de tu pelo</p>
+          <h2 id="contact-title">¿Empezamos<br /><span>por escucharte?</span></h2>
+        </div>
+        <div class="contact-cta">
+          <p>Contanos qué estás buscando y armamos el próximo paso con vos.</p>
+          <button class="button button-outline" type="button" data-open-booking>Escribir al estudio <span aria-hidden="true">↗</span></button>
+          <span class="contact-hours">Atención con cita previa · Contacto directo en coordinación</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="wordmark" href="#inicio" aria-label="chicho stilo, volver al inicio">chicho stilo</a>
+      <span class="footer-note">Cabello, elevado. © <span data-current-year>2026</span> chicho stilo</span>
+      <a class="back-top" href="#inicio">Volver arriba <span aria-hidden="true">↑</span></a>
+    </footer>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+
+    <aside class="cart-drawer" id="cartDrawer" aria-labelledby="cart-title" aria-hidden="true">
+      <div class="drawer-scrim" data-close-cart></div>
+      <div class="drawer-panel" role="dialog" aria-modal="true" tabindex="-1">
+        <div class="drawer-header">
+          <div><p class="eyebrow">Selección chicho stilo</p><h2 id="cart-title">Tu bolsa <span class="drawer-count">0</span></h2></div>
+          <button class="icon-button" type="button" data-close-cart aria-label="Cerrar bolsa"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="cart-items" aria-live="polite"></div>
+        <div class="empty-cart"><span aria-hidden="true">✳</span><p>Tu bolsa está esperando<br />su primer ritual.</p><button class="text-link" type="button" data-close-cart>Explorar productos <span aria-hidden="true">↗</span></button></div>
+        <div class="drawer-footer" hidden>
+          <div class="cart-total"><span>Total estimado</span><strong>$ 0</strong></div>
+          <p>Importe orientativo, sujeto a disponibilidad. Sin pago en línea.</p>
+          <button class="button button-lime checkout-button" type="button" data-checkout>Preparar consulta de compra <span aria-hidden="true">↗</span></button>
+        </div>
+      </div>
+    </aside>
+
+    <dialog class="request-dialog" id="checkoutDialog" aria-labelledby="checkout-title">
+      <form method="dialog" class="dialog-shell" data-request-form>
+        <button class="icon-button dialog-close" type="button" data-close-dialog aria-label="Cerrar ventana"><span aria-hidden="true">×</span></button>
+        <p class="eyebrow">Un último paso</p>
+        <h2 id="checkout-title">Tu pedido,<br /><span>a tu manera.</span></h2>
+        <p class="dialog-intro">No procesamos pagos online. Prepará un mensaje para consultar disponibilidad y coordinar el pedido con el estudio.</p>
+        <label for="orderContact">¿Cómo te contactamos? <span class="optional-label">(opcional)</span></label>
+        <input id="orderContact" name="contact" type="text" autocomplete="name" placeholder="Tu nombre o medio de contacto" />
+        <label for="orderMessage">Mensaje listo para copiar</label>
+        <textarea id="orderMessage" rows="5" readonly aria-describedby="order-disclaimer"></textarea>
+        <p class="honesty-note" id="order-disclaimer">Este mensaje todavía no se envió y tu pedido no está confirmado.</p>
+        <div class="dialog-actions">
+          <button class="button button-lime" type="button" data-copy="order">Copiar mensaje <span aria-hidden="true">↗</span></button>
+          <button class="text-link" type="button" data-close-dialog>Seguir mirando</button>
+        </div>
+        <p class="form-feedback" data-form-feedback role="status" aria-live="polite"></p>
+      </form>
+    </dialog>
+
+    <dialog class="request-dialog" id="bookingDialog" aria-labelledby="booking-title">
+      <form method="dialog" class="dialog-shell" data-booking-form>
+        <button class="icon-button dialog-close" type="button" data-close-dialog aria-label="Cerrar ventana"><span aria-hidden="true">×</span></button>
+        <p class="eyebrow">Solicitud de turno</p>
+        <h2 id="booking-title">Un momento<br /><span>para vos.</span></h2>
+        <p class="dialog-intro">Contanos qué necesitás. La solicitud no confirma un turno: coordinaremos disponibilidad personalmente.</p>
+        <label for="bookingName">Tu nombre</label>
+        <input id="bookingName" name="name" type="text" autocomplete="name" placeholder="Nombre y apellido" required />
+        <label for="bookingContact">Tu medio de contacto</label>
+        <input id="bookingContact" name="contact" type="text" autocomplete="email" placeholder="Email o teléfono" required />
+        <label for="bookingService">Servicio</label>
+        <select id="bookingService" name="service" required>
+          <option value="">Elegí un servicio</option>
+          <option>Corte & forma</option>
+          <option>Color consciente</option>
+          <option>Ritual de reparación</option>
+          <option>Quiero asesoramiento</option>
+        </select>
+        <label for="bookingDate">Día de preferencia <span class="optional-label">(opcional)</span></label>
+        <input id="bookingDate" name="date" type="date" />
+        <label for="bookingMessage">Solicitud lista para copiar</label>
+        <textarea id="bookingMessage" rows="4" readonly aria-describedby="booking-disclaimer">Completá tus datos para preparar la solicitud.</textarea>
+        <p class="honesty-note" id="booking-disclaimer">Tu solicitud aún no se envió ni reservó.</p>
+        <div class="dialog-actions">
+          <button class="button button-lime" type="submit">Preparar solicitud <span aria-hidden="true">↗</span></button>
+          <button class="text-link" type="button" data-close-dialog>Cerrar</button>
+        </div>
+        <div class="copy-actions" hidden>
+          <button class="button button-outline" type="button" data-copy="booking">Copiar y coordinar <span aria-hidden="true">↗</span></button>
+        </div>
+        <p class="form-feedback" data-form-feedback role="status" aria-live="polite"></p>
+      </form>
+    </dialog>
+  </body>
+</html>
