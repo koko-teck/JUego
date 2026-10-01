@@ -1,0 +1,20 @@
+{
+  "name": "Misión TurboMente",
+  "short_name": "TurboMente",
+  "description": "Esquiva, piensa rápido y completa diez rutas.",
+  "lang": "es",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#10172e",
+  "theme_color": "#10172e",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

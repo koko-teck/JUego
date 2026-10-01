@@ -1,220 +1,526 @@
-const products = new Map();
-const cartDrawer = document.querySelector("#cartDrawer");
-const drawerPanel = cartDrawer.querySelector(".drawer-panel");
-const checkoutDialog = document.querySelector("#checkoutDialog");
-const bookingDialog = document.querySelector("#bookingDialog");
-const toast = document.querySelector(".toast");
-let toastTimer;
-let lastFocusedElement;
+const levels = [
+  { title: "Planeta Chispa", short: "Despega con reflejos", icon: "🪐", scene: "scene-1", checkpoints: [22, 53, 82] },
+  { title: "Nube de Colores", short: "Encuentra el patrón", icon: "☁️", scene: "scene-2", checkpoints: [22, 53, 82] },
+  { title: "Núcleo Turbo", short: "La misión final", icon: "🌟", scene: "scene-3", checkpoints: [22, 53, 82] },
+  { title: "Bosque Orbital", short: "Busca la ruta secreta", icon: "🌳", scene: "scene-4", checkpoints: [22, 53, 82] },
+  { title: "Anillos de Saturno", short: "Vuela entre los anillos", icon: "🪐", scene: "scene-5", checkpoints: [22, 53, 82] },
+  { title: "Mar de Plasma", short: "Navega la corriente", icon: "🌊", scene: "scene-6", checkpoints: [22, 53, 82] },
+  { title: "Galaxia Espejada", short: "Descifra el reflejo", icon: "🌌", scene: "scene-7", checkpoints: [22, 53, 82] },
+  { title: "Tormenta Neón", short: "Mantén el rumbo", icon: "⚡", scene: "scene-8", checkpoints: [22, 53, 82] },
+  { title: "Portal Cuántico", short: "Cruza el portal", icon: "🌀", scene: "scene-9", checkpoints: [22, 53, 82] },
+  { title: "Supernova Final", short: "Completa la misión", icon: "☀️", scene: "scene-10", checkpoints: [22, 53, 82] },
+];
 
-const formatPrice = (amount) => `$ ${amount.toLocaleString("es-ES")}`;
+const challenges = {
+  peques: [
+    [
+      { prompt: "¿Qué número sigue? 1 · 2 · 3 · ?", answers: ["4", "6", "2", "5"], correct: 0, hint: "¡Eso! Después del 3 viene el 4." },
+      { prompt: "Tienes 2 estrellas y ganas 1 más. ¿Cuántas tienes?", answers: ["2", "4", "3", "1"], correct: 2, hint: "¡Tres estrellas brillantes!" },
+      { prompt: "¿Cuál de estos es diferente?", answers: ["🌙", "🌙", "☀️", "🌙"], correct: 2, hint: "¡El sol es diferente a las lunas!" },
+    ],
+    [
+      { prompt: "¿Qué color viene después? 🔴 🔵 🔴 🔵 …", answers: ["🔴", "🟢", "🟡", "🔵"], correct: 0, hint: "¡Rojo, azul, rojo, azul… rojo!" },
+      { prompt: "¿Qué forma tiene 3 puntas?", answers: ["⚪ Círculo", "🔺 Triángulo", "⬜ Cuadrado", "⭐ Estrella"], correct: 1, hint: "¡El triángulo tiene tres puntas!" },
+      { prompt: "Si hay 4 cohetes y se va 1, ¿cuántos quedan?", answers: ["2", "4", "1", "3"], correct: 3, hint: "¡Cuatro menos uno son tres!" },
+    ],
+    [
+      { prompt: "¿Qué número falta? 2 · 4 · 6 · ?", answers: ["7", "8", "9", "5"], correct: 1, hint: "¡Contamos de dos en dos: sigue el 8!" },
+      { prompt: "¿Cuál vuela más alto?", answers: ["🪨 Roca", "🐟 Pez", "🚀 Cohete", "🐢 Tortuga"], correct: 2, hint: "¡El cohete llega hasta las estrellas!" },
+      { prompt: "Tienes 3 lunas. ¿Cuántas te faltan para tener 5?", answers: ["1", "3", "2", "4"], correct: 2, hint: "¡Dos más y llegas a cinco!" },
+    ],
+  ],
+  exploradores: [
+    [
+      { prompt: "Completa la serie: 3 · 6 · 9 · ?", answers: ["10", "12", "13", "15"], correct: 1, hint: "¡Sumamos 3 cada vez: 12!" },
+      { prompt: "Un cohete tiene 4 filas de 2 luces. ¿Cuántas luces son?", answers: ["6", "8", "10", "4"], correct: 1, hint: "¡Cuatro grupos de dos hacen ocho!" },
+      { prompt: "¿Cuál no pertenece al grupo?", answers: ["🟦", "🔺", "🔵", "🟢"], correct: 1, hint: "¡El triángulo es el único que no es redondo!" },
+    ],
+    [
+      { prompt: "¿Qué número sigue? 2 · 4 · 8 · 16 · ?", answers: ["24", "30", "32", "20"], correct: 2, hint: "¡Cada número se duplica: 32!" },
+      { prompt: "Si hoy es martes, ¿qué día será dentro de 3 días?", answers: ["Jueves", "Sábado", "Viernes", "Domingo"], correct: 2, hint: "¡Miércoles, jueves, viernes!" },
+      { prompt: "¿Qué sigue? 🔺 🔵 🔵 🔺 🔵 🔵 …", answers: ["🔵", "🔺", "🟩", "⭐"], correct: 1, hint: "¡Se repite triángulo, círculo, círculo!" },
+    ],
+    [
+      { prompt: "Resuelve: 18 − 7 + 3", answers: ["12", "14", "10", "13"], correct: 1, hint: "¡18 menos 7 son 11; más 3, 14!" },
+      { prompt: "Un patrón suma 5: 7 · 12 · 17 · ?", answers: ["21", "22", "23", "24"], correct: 1, hint: "¡17 más 5 es 22!" },
+      { prompt: "Hay 3 naves y cada una lleva 4 cajas. ¿Cuántas cajas son?", answers: ["7", "12", "9", "16"], correct: 1, hint: "¡Tres grupos de cuatro hacen doce!" },
+    ],
+  ],
+  adolescentes: [
+    [
+      { prompt: "Completa: 2 · 5 · 10 · 17 · ?", answers: ["24", "25", "26", "27"], correct: 2, hint: "¡Sumamos 3, luego 5, luego 7: sigue 26!" },
+      { prompt: "Una nave recorre 84 km en 3 horas. ¿Cuánto por hora?", answers: ["24 km", "28 km", "32 km", "21 km"], correct: 1, hint: "¡84 dividido entre 3 son 28!" },
+      { prompt: "Si TODOS los zorblis son verdes y Nix es un zorbli, ¿qué sabemos?", answers: ["Nix es verde", "Nix vuela", "Nix es azul", "No se sabe"], correct: 0, hint: "¡Si todos son verdes, Nix también!" },
+    ],
+    [
+      { prompt: "¿Qué número sigue? 1 · 1 · 2 · 3 · 5 · 8 · ?", answers: ["11", "12", "13", "15"], correct: 2, hint: "¡Cada número suma los dos anteriores: 13!" },
+      { prompt: "Un reloj adelanta 5 min cada hora. ¿Cuánto adelanta en 4 horas?", answers: ["15 min", "20 min", "25 min", "9 min"], correct: 1, hint: "¡Cinco por cuatro: 20 minutos!" },
+      { prompt: "¿Cuál es el intruso? 16 · 25 · 36 · 48", answers: ["16", "25", "36", "48"], correct: 3, hint: "¡16, 25 y 36 son cuadrados perfectos; 48 no!" },
+    ],
+    [
+      { prompt: "Resuelve: 3 × (8 + 4) ÷ 2", answers: ["18", "20", "24", "16"], correct: 0, hint: "¡Paréntesis primero: 3 × 12 ÷ 2 = 18!" },
+      { prompt: "¿Qué letra representa el primer código, 20?", answers: ["T", "B", "R", "U"], correct: 0, hint: "¡La T es la letra número 20!" },
+      { prompt: "Una ruta tiene 3 tramos iguales. Ya hiciste 2/3. ¿Qué fracción queda?", answers: ["1/3", "2/3", "1/2", "3/3"], correct: 0, hint: "¡Queda un tramo de los tres: 1/3!" },
+    ],
+  ],
+};
 
-function announce(message) {
-  toast.textContent = message;
-  toast.classList.add("is-visible");
-  window.clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 2600);
+const ageModes = ["peques", "exploradores", "adolescentes", "jovenes"];
+
+function makeQuestion(prompt, answer, alternatives, hint) {
+  return { prompt, answers: [alternatives[0], String(answer), alternatives[1], alternatives[2]], correct: 1, hint };
 }
 
-function renderCart() {
-  const count = [...products.values()].reduce((sum, item) => sum + item.quantity, 0);
-  const total = [...products.values()].reduce((sum, item) => sum + item.price * item.quantity, 0);
-  document.querySelectorAll(".cart-count, .drawer-count").forEach((element) => {
-    element.textContent = count;
-  });
-  document.querySelector(".cart-trigger").setAttribute("aria-label", `Abrir bolsa, ${count} ${count === 1 ? "artículo" : "artículos"}`);
-  document.querySelector(".cart-total strong").textContent = formatPrice(total);
-  drawerPanel.classList.toggle("is-empty", count === 0);
-  drawerPanel.querySelector(".drawer-footer").hidden = count === 0;
-
-  const items = drawerPanel.querySelector(".cart-items");
-  items.replaceChildren();
-  products.forEach((item, name) => {
-    const row = document.createElement("div");
-    row.className = "cart-item";
-    row.innerHTML = `
-      <span class="cart-item-name"></span>
-      <span class="cart-item-price"></span>
-      <div class="quantity-controls" aria-label="Cantidad de producto">
-        <button type="button" data-quantity="-1" aria-label="Quitar una unidad">−</button>
-        <span aria-live="polite"></span>
-        <button type="button" data-quantity="1" aria-label="Agregar una unidad">+</button>
-      </div>
-      <button class="remove-item" type="button">Quitar</button>`;
-    row.querySelector(".cart-item-name").textContent = name;
-    row.querySelector(".cart-item-price").textContent = formatPrice(item.price * item.quantity);
-    row.querySelector(".quantity-controls span").textContent = item.quantity;
-    row.querySelectorAll("[data-quantity]").forEach((button) => {
-      button.addEventListener("click", () => changeQuantity(name, Number(button.dataset.quantity)));
-    });
-    row.querySelector(".remove-item").addEventListener("click", () => {
-      products.delete(name);
-      renderCart();
-      announce(`${name} se quitó de tu bolsa.`);
-    });
-    items.append(row);
-  });
+function makeExtraChallenges(mode, levelNumber) {
+  const n = levelNumber;
+  if (mode === "peques") {
+    return [
+      makeQuestion(`¿Qué número sigue? ${n} · ${n + 1} · ${n + 2} · ?`, n + 3, [n + 1, n + 4, n + 5], `¡Contamos de uno en uno: sigue el ${n + 3}!`),
+      makeQuestion(`Tienes ${n} estrellas y ganas 2 más. ¿Cuántas hay?`, n + 2, [n + 1, n + 3, n + 4], `¡${n} estrellas y 2 más hacen ${n + 2}!`),
+      makeQuestion(`Hay ${n + 4} naves. ${n} vuelven a casa. ¿Cuántas siguen?`, 4, [3, 5, 6], `¡${n + 4} menos ${n} son 4!`),
+    ];
+  }
+  if (mode === "exploradores") {
+    return [
+      makeQuestion(`Completa el patrón: ${n} · ${n * 2} · ${n * 3} · ?`, n * 4, [n * 3 + 1, n * 4 + 2, n * 5], `¡Sumamos ${n} cada vez: sigue ${n * 4}!`),
+      makeQuestion(`Hay ${n} naves con ${n + 1} luces cada una. ¿Cuántas luces?`, n * (n + 1), [n * (n + 1) - 1, n * (n + 1) + 1, n * n], `¡${n} grupos de ${n + 1} hacen ${n * (n + 1)}!`),
+      makeQuestion(`Una ruta mide ${n * 10} km. Ya volaste ${n * 4} km. ¿Cuánto falta?`, n * 6, [n * 5, n * 7, n * 4], `¡${n * 10} menos ${n * 4} son ${n * 6} km!`),
+    ];
+  }
+  if (mode === "adolescentes") {
+    return [
+      makeQuestion(`¿Qué valor sigue? ${n} · ${n + 2} · ${n + 6} · ${n + 12} · ?`, n + 20, [n + 18, n + 16, n + 22], `¡Las diferencias son 2, 4, 6 y 8: sigue ${n + 20}!`),
+      makeQuestion(`Resuelve: 2x + ${n} = ${3 * n}`, n, [n - 1, n + 1, n + 2], `¡Restamos ${n} y dividimos entre 2: x = ${n}!`),
+      makeQuestion(`¿Cuánto es el 10 % de ${n * 100}?`, n * 10, [n * 5, n * 20, n * 100], `¡El 10 % es una décima parte: ${n * 10}!`),
+    ];
+  }
+  return [
+    makeQuestion(`Completa la serie de cuadrados: ${n * n} · ${(n + 1) ** 2} · ${(n + 2) ** 2} · ?`, (n + 3) ** 2, [(n + 2) ** 2 + 1, (n + 3) ** 2 + 2, (n + 4) ** 2], `¡El siguiente cuadrado es ${n + 3}² = ${(n + 3) ** 2}!`),
+    makeQuestion(`¿Cuánto es el 12 % de ${100 + n * 25}?`, 12 + n * 3, [12 + n * 2, 12 + n * 4, 12 + n * 5], `¡El 12 % de ${100 + n * 25} es ${12 + n * 3}!`),
+    makeQuestion(`El promedio de ${n}, ${n + 2} y ${n + 4} es…`, n + 2, [n + 1, n + 3, n + 4], `¡La media es (${n} + ${n + 2} + ${n + 4}) ÷ 3 = ${n + 2}!`),
+  ];
 }
 
-function changeQuantity(name, amount) {
-  const item = products.get(name);
-  if (!item) return;
-  item.quantity += amount;
-  if (item.quantity <= 0) products.delete(name);
-  renderCart();
-}
-
-function openCart() {
-  lastFocusedElement = document.activeElement;
-  cartDrawer.classList.add("is-open");
-  cartDrawer.setAttribute("aria-hidden", "false");
-  document.body.classList.add("cart-open");
-  drawerPanel.focus();
-  drawerPanel.addEventListener("keydown", trapDrawerFocus);
-}
-
-function closeCart() {
-  cartDrawer.classList.remove("is-open");
-  cartDrawer.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("cart-open");
-  drawerPanel.removeEventListener("keydown", trapDrawerFocus);
-  lastFocusedElement?.focus();
-}
-
-function trapDrawerFocus(event) {
-  if (event.key !== "Tab") return;
-  const focusable = [...drawerPanel.querySelectorAll("button:not([disabled]), a[href], [tabindex]:not([tabindex='-1'])")];
-  if (!focusable.length) return;
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-  if (event.shiftKey && document.activeElement === first) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && document.activeElement === last) {
-    event.preventDefault();
-    first.focus();
+for (const mode of ageModes) {
+  challenges[mode] ??= [];
+  while (challenges[mode].length < levels.length) {
+    challenges[mode].push(makeExtraChallenges(mode, challenges[mode].length + 1));
   }
 }
 
-function openDialog(dialog) {
-  lastFocusedElement = document.activeElement;
-  closeCart();
-  dialog.showModal();
-  document.body.classList.add("has-open-dialog");
-}
+const homeScreen = document.querySelector("#home-screen");
+const gameScreen = document.querySelector("#game-screen");
+const levelList = document.querySelector("#level-list");
+const hazardLayer = document.querySelector("#hazard-layer");
+const player = document.querySelector("#player");
+const raceScene = document.querySelector("#race-scene");
+const questionOverlay = document.querySelector("#question-overlay");
+const pauseOverlay = document.querySelector("#pause-overlay");
+const resultOverlay = document.querySelector("#result-overlay");
+const familyOverlay = document.querySelector("#family-overlay");
+const progressKey = "turbomente-progress-v1";
 
-function closeDialog(dialog) {
-  dialog.close();
-  document.body.classList.remove("has-open-dialog");
-  lastFocusedElement?.focus();
-}
+let selectedAge = "";
+let progressData = loadProgress();
+let currentLevel = 0;
+let lane = 1;
+let shields = 3;
+let score = 0;
+let distance = 0;
+let challengeIndex = 0;
+let elapsedSinceSpawn = 0;
+let hazards = [];
+let nextHazardId = 0;
+let lastFrame = 0;
+let invulnerableFor = 0;
+let animationFrame = 0;
+let parentHoldTimer = 0;
+let answerLocked = false;
+let paused = true;
+let swipeStart = null;
 
-function orderMessage(contact = "") {
-  const lines = [...products.entries()].map(([name, item]) => `- ${name} x ${item.quantity} — ${formatPrice(item.price * item.quantity)}`);
-  const total = [...products.values()].reduce((sum, item) => sum + item.price * item.quantity, 0);
-  return `Hola, soy ${contact || "[tu nombre o contacto]"}.\nQuisiera consultar disponibilidad para:\n${lines.join("\n")}\nTotal estimado: ${formatPrice(total)}\n\nEntiendo que el pedido y el importe deben confirmarse con el estudio.`;
-}
-
-async function copyMessage(textarea, feedback) {
+function loadProgress() {
   try {
-    await navigator.clipboard.writeText(textarea.value);
-    feedback.textContent = "Mensaje copiado. Podés pegarlo en tu canal de contacto preferido.";
-  } catch {
-    textarea.focus();
-    textarea.select();
-    feedback.textContent = "No se pudo copiar automáticamente. El mensaje está seleccionado para que lo copies manualmente.";
+    const saved = JSON.parse(localStorage.getItem(progressKey) || "{}");
+    return {
+      completed: Array.isArray(saved.completed) ? saved.completed.filter((number) => Number.isInteger(number) && number >= 0 && number < levels.length) : [],
+      best: Number.isFinite(saved.best) && saved.best >= 0 ? saved.best : 0,
+    };
+  } catch (error) {
+    console.warn("No se pudo leer el progreso guardado.", error);
+    return { completed: [], best: 0 };
   }
 }
 
-document.querySelectorAll("[data-add]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const { add: name, price } = button.dataset;
-    const item = products.get(name) || { price: Number(price), quantity: 0 };
-    item.quantity += 1;
-    products.set(name, item);
-    renderCart();
-    announce(`${name} se agregó a tu bolsa.`);
+function saveProgress() {
+  try {
+    localStorage.setItem(progressKey, JSON.stringify(progressData));
+    return true;
+  } catch (error) {
+    console.warn("No se pudo guardar el progreso en este dispositivo.", error);
+    return false;
+  }
+}
+
+function isUnlocked(index) {
+  return index === 0 || progressData.completed.includes(index - 1);
+}
+
+function renderLevels() {
+  levelList.replaceChildren();
+  levels.forEach((level, index) => {
+    const unlocked = isUnlocked(index);
+    const completed = progressData.completed.includes(index);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "level-card";
+    button.disabled = !unlocked;
+    button.setAttribute("aria-label", `${level.title}, ${completed ? "completado" : unlocked ? "jugar" : "bloqueado"}`);
+
+    const icon = document.createElement("span");
+    icon.className = "level-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = level.icon;
+    const copy = document.createElement("span");
+    copy.className = "level-copy";
+    const title = document.createElement("strong");
+    title.textContent = `${String(index + 1).padStart(2, "0")} · ${level.title}`;
+    const subtitle = document.createElement("small");
+    subtitle.textContent = completed ? "¡Ruta completada! Puedes repetirla" : level.short;
+    copy.append(title, subtitle);
+    const status = document.createElement("span");
+    status.className = "level-status";
+    status.textContent = completed ? "✓" : unlocked ? "→" : "🔒";
+    status.setAttribute("aria-hidden", "true");
+    button.append(icon, copy, status);
+    button.addEventListener("click", () => startLevel(index));
+    levelList.append(button);
   });
-});
+  document.querySelector("#progress-chip").textContent = `${progressData.completed.length} / ${levels.length}`;
+}
 
-document.querySelectorAll("[data-filter]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const filter = button.dataset.filter;
-    document.querySelectorAll("[data-filter]").forEach((option) => {
-      const selected = option === button;
-      option.classList.toggle("is-active", selected);
-      option.setAttribute("aria-pressed", String(selected));
-    });
-    document.querySelectorAll(".product-card").forEach((card) => {
-      card.hidden = filter !== "todos" && card.dataset.category !== filter;
-    });
+function chooseAge(button) {
+  selectedAge = button.dataset.age;
+  document.querySelectorAll("[data-age]").forEach((option) => {
+    const isSelected = option === button;
+    option.setAttribute("aria-pressed", String(isSelected));
   });
-});
+  document.querySelector("#age-note").textContent = "¡Modo listo! Toca una ruta para empezar.";
+  renderLevels();
+}
 
-document.querySelectorAll("[data-open-cart]").forEach((button) => button.addEventListener("click", openCart));
-document.querySelectorAll("[data-close-cart]").forEach((button) => button.addEventListener("click", closeCart));
-document.querySelector("[data-checkout]").addEventListener("click", () => {
-  document.querySelector("#orderContact").value = "";
-  document.querySelector("#orderMessage").value = orderMessage();
-  document.querySelector("#checkoutDialog [data-form-feedback]").textContent = "";
-  closeCart();
-  openDialog(checkoutDialog);
-});
-document.querySelectorAll("[data-open-booking]").forEach((button) => {
-  button.addEventListener("click", () => {
-    document.querySelector("[data-booking-form]").reset();
-    document.querySelector("#bookingMessage").value = "Completá tus datos para preparar la solicitud.";
-    document.querySelector("#bookingDialog .copy-actions").hidden = true;
-    document.querySelector("#bookingDialog [data-form-feedback]").textContent = "";
-    openDialog(bookingDialog);
+function startLevel(index) {
+  if (!selectedAge) {
+    document.querySelector("#age-note").textContent = "Primero elige un modo de reto. No hace falta compartir tu edad.";
+    document.querySelector(".age-picker").scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+  if (!isUnlocked(index)) return;
+  currentLevel = index;
+  lane = 1;
+  shields = 3;
+  score = 0;
+  distance = 0;
+  challengeIndex = 0;
+  elapsedSinceSpawn = 0;
+  hazards = [];
+  nextHazardId = 0;
+  invulnerableFor = 0;
+  paused = false;
+  hazardLayer.replaceChildren();
+  player.style.left = "50%";
+  player.classList.remove("is-hit");
+  raceScene.className = `race-scene ${levels[index].scene}`;
+  document.querySelector("#game-level-kicker").textContent = `RUTA ${String(index + 1).padStart(2, "0")}`;
+  document.querySelector("#game-level-title").textContent = levels[index].title;
+  document.querySelector("#planet-name").textContent = levels[index].title.toLocaleUpperCase("es");
+  document.querySelector("#race-progress-fill").style.width = "0%";
+  document.querySelector("#progress-label").textContent = "SALIDA";
+  document.querySelector("#score-label").textContent = "0";
+  document.querySelector("#scene-hint").textContent = "¡A esquivar!";
+  updateHearts();
+  questionOverlay.hidden = true;
+  pauseOverlay.hidden = true;
+  resultOverlay.hidden = true;
+  homeScreen.hidden = true;
+  gameScreen.hidden = false;
+  lastFrame = performance.now();
+  cancelAnimationFrame(animationFrame);
+  animationFrame = requestAnimationFrame(runFrame);
+}
+
+function updateHearts() {
+  document.querySelectorAll("#hearts span").forEach((heart, index) => {
+    const isLost = index >= shields;
+    const wasLost = heart.classList.contains("lost");
+    heart.classList.toggle("lost", isLost);
+    if (isLost && !wasLost) {
+      heart.classList.remove("life-lost");
+      void heart.offsetWidth;
+      heart.classList.add("life-lost");
+      window.setTimeout(() => heart.classList.remove("life-lost"), 750);
+    }
   });
-});
-document.querySelectorAll("[data-close-dialog]").forEach((button) => {
-  button.addEventListener("click", () => closeDialog(button.closest("dialog")));
-});
-document.querySelectorAll("dialog").forEach((dialog) => {
-  dialog.addEventListener("close", () => document.body.classList.remove("has-open-dialog"));
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) closeDialog(dialog);
+  document.querySelector("#hearts").setAttribute("aria-label", `${shields} ${shields === 1 ? "escudo" : "escudos"}`);
+}
+
+function movePlayer(direction) {
+  if (gameScreen.hidden || paused) return;
+  lane = Math.max(0, Math.min(2, lane + direction));
+  player.style.left = `${(lane * 100) / 3 + 16.666}%`;
+}
+
+function spawnHazard() {
+  const hazard = {
+    id: nextHazardId++,
+    lane: Math.floor(Math.random() * 3),
+    y: -8,
+    star: Math.random() < 0.3,
+    resolved: false,
+  };
+  const element = document.createElement("div");
+  element.className = `hazard ${hazard.star ? "hazard-star" : "hazard-rock"}`;
+  element.textContent = hazard.star ? "✦" : "☄️";
+  element.setAttribute("data-hazard", String(hazard.id));
+  element.style.left = `${hazard.lane * 33.333}%`;
+  element.style.top = `${hazard.y}%`;
+  hazardLayer.append(element);
+  hazard.element = element;
+  hazards.push(hazard);
+}
+
+function runFrame(now) {
+  if (paused || gameScreen.hidden) return;
+  const delta = Math.min(now - lastFrame, 50);
+  lastFrame = now;
+  distance = Math.min(100, distance + (delta / 28000) * 100);
+  elapsedSinceSpawn += delta;
+  invulnerableFor = Math.max(0, invulnerableFor - delta);
+
+  if (elapsedSinceSpawn > 1120 + Math.random() * 400) {
+    elapsedSinceSpawn = 0;
+    spawnHazard();
+  }
+  hazards.forEach((hazard) => {
+    hazard.y += delta * 0.046;
+    hazard.element.style.top = `${hazard.y}%`;
+    if (!hazard.resolved && hazard.y >= 77 && hazard.y < 89 && hazard.lane === lane) {
+      hazard.resolved = true;
+      if (hazard.star) {
+        score += 10;
+        document.querySelector("#scene-hint").textContent = "+10 TURBO";
+        document.querySelector("#score-label").textContent = String(score);
+      } else if (invulnerableFor === 0) {
+        shields -= 1;
+        invulnerableFor = 1050;
+        updateHearts();
+        player.classList.remove("is-hit");
+        raceScene.classList.remove("is-collision");
+        void player.offsetWidth;
+        player.classList.add("is-hit");
+        raceScene.classList.add("is-collision");
+        window.setTimeout(() => raceScene.classList.remove("is-collision"), 650);
+        document.querySelector("#scene-hint").textContent = "¡Sigue adelante!";
+        if (shields <= 0) {
+          finishLevel(false);
+          return;
+        }
+      }
+    }
+    if (hazard.y > 110) {
+      hazard.element.remove();
+      hazard.resolved = true;
+    }
   });
-});
+  if (paused) return;
+  hazards = hazards.filter((hazard) => hazard.y <= 110);
 
-document.querySelector("#orderContact").addEventListener("input", (event) => {
-  document.querySelector("#orderMessage").value = orderMessage(event.target.value.trim());
-});
+  document.querySelector("#race-progress-fill").style.width = `${distance}%`;
+  document.querySelector("#progress-label").textContent = distance > 96 ? "¡META!" : `${Math.floor(distance)}%`;
 
-document.querySelector("[data-booking-form]").addEventListener("submit", (event) => {
-  event.preventDefault();
-  const form = event.currentTarget;
-  if (!form.reportValidity()) return;
-  const data = new FormData(form);
-  const date = data.get("date") || "a coordinar";
-  document.querySelector("#bookingMessage").value =
-    `Hola, soy ${data.get("name")}.\nQuisiera consultar disponibilidad para ${data.get("service")}.\nDía de preferencia: ${date}.\nMi contacto: ${data.get("contact")}.\n\nEntiendo que esta es una solicitud y que el turno debe confirmarse con el estudio.`;
-  document.querySelector("#bookingDialog .copy-actions").hidden = false;
-  document.querySelector("#bookingDialog [data-form-feedback]").textContent =
-    "Solicitud preparada, pero aún no enviada ni reservada. Copiala para coordinar con el estudio.";
-});
+  const checkpoints = levels[currentLevel].checkpoints;
+  if (challengeIndex < checkpoints.length && distance >= checkpoints[challengeIndex]) {
+    openChallenge();
+    return;
+  }
+  if (distance >= 100) {
+    finishLevel(true);
+    return;
+  }
+  animationFrame = requestAnimationFrame(runFrame);
+}
 
-document.querySelectorAll("[data-copy]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const isOrder = button.dataset.copy === "order";
-    copyMessage(
-      document.querySelector(isOrder ? "#orderMessage" : "#bookingMessage"),
-      document.querySelector(isOrder ? "#checkoutDialog [data-form-feedback]" : "#bookingDialog [data-form-feedback]")
-    );
+function openChallenge() {
+  paused = true;
+  answerLocked = false;
+  const challenge = challenges[selectedAge][currentLevel][challengeIndex];
+  document.querySelector("#question-count").textContent = `${challengeIndex + 1} / 3`;
+  document.querySelector("#question-title").textContent = challengeIndex === 2 ? "¡Último reto!" : "¡Pausa turbo!";
+  document.querySelector("#question-prompt").textContent = challenge.prompt;
+  document.querySelector("#answer-feedback").textContent = "";
+  const answerList = document.querySelector("#answer-list");
+  answerList.replaceChildren();
+  challenge.answers.forEach((answer, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "answer-button";
+    button.textContent = answer;
+    button.addEventListener("click", () => answerChallenge(index, challenge));
+    answerList.append(button);
   });
-});
+  questionOverlay.hidden = false;
+  document.querySelector("#answer-list button")?.focus();
+}
 
+function answerChallenge(answerIndex, challenge) {
+  if (answerLocked) return;
+  answerLocked = true;
+  const correct = answerIndex === challenge.correct;
+  const buttons = [...document.querySelectorAll(".answer-button")];
+  buttons.forEach((button, index) => {
+    button.disabled = true;
+    if (index === challenge.correct) button.classList.add("correct");
+    else if (index === answerIndex) button.classList.add("incorrect");
+  });
+  if (correct) {
+    score += 25;
+    document.querySelector("#scene-hint").textContent = "+25 CEREBRO TURBO";
+    document.querySelector("#answer-feedback").textContent = `¡Correcto! ${challenge.hint}`;
+  } else {
+    document.querySelector("#answer-feedback").textContent = `¡Buen intento! ${challenge.hint}`;
+  }
+  document.querySelector("#score-label").textContent = String(score);
+  window.setTimeout(() => {
+    questionOverlay.hidden = true;
+    challengeIndex += 1;
+    paused = false;
+    lastFrame = performance.now();
+    animationFrame = requestAnimationFrame(runFrame);
+  }, 3300);
+}
+
+function finishLevel(won) {
+  paused = true;
+  cancelAnimationFrame(animationFrame);
+  questionOverlay.hidden = true;
+  pauseOverlay.hidden = true;
+  resultOverlay.hidden = false;
+  if (won) {
+    if (!progressData.completed.includes(currentLevel)) progressData.completed.push(currentLevel);
+    progressData.completed.sort((a, b) => a - b);
+    progressData.best = Math.max(progressData.best, score);
+    const isSaved = saveProgress();
+    document.querySelector("#privacy-note").textContent = isSaved
+      ? "Tu progreso se guarda solo en este dispositivo. Sin cuentas, anuncios ni compras."
+      : "No se pudo guardar el progreso en este navegador. ¡Puedes seguir jugando!";
+    renderLevels();
+    document.querySelector("#result-icon").textContent = "🏆";
+    document.querySelector("#result-kicker").textContent = "¡RUTA COMPLETADA!";
+    document.querySelector("#result-title").textContent = currentLevel === levels.length - 1 ? "¡Misión cumplida!" : "¡Lo lograste!";
+    document.querySelector("#result-copy").textContent = currentLevel === levels.length - 1
+      ? "¡Completaste las diez rutas! Tus reflejos y tu mente hicieron un gran equipo."
+      : `Terminaste ${levels[currentLevel].title}. ¡La siguiente aventura ya está desbloqueada!`;
+    document.querySelector("#result-stars").textContent = shields === 3 ? "✦ ✦ ✦" : shields === 2 ? "✦ ✦ ☆" : "✦ ☆ ☆";
+    const primary = document.querySelector("#result-primary");
+    primary.hidden = currentLevel >= levels.length - 1;
+    primary.innerHTML = "Siguiente ruta <span aria-hidden=\"true\">→</span>";
+    primary.onclick = () => startLevel(currentLevel + 1);
+  } else {
+    document.querySelector("#result-icon").textContent = "🛸";
+    document.querySelector("#result-kicker").textContent = "¡CASI, PILOTO!";
+    document.querySelector("#result-title").textContent = "Un intento más";
+    document.querySelector("#result-copy").textContent = "Los meteoritos te alcanzaron, pero cada intento te hace más hábil. ¡Puedes volver a probar!";
+    document.querySelector("#result-stars").textContent = "✦ ✧ ✧";
+    const primary = document.querySelector("#result-primary");
+    primary.hidden = false;
+    primary.innerHTML = "Reintentar ruta <span aria-hidden=\"true\">↻</span>";
+    primary.onclick = () => startLevel(currentLevel);
+  }
+  document.querySelector("#result-score").textContent = String(score);
+}
+
+function goHome() {
+  paused = true;
+  cancelAnimationFrame(animationFrame);
+  questionOverlay.hidden = true;
+  pauseOverlay.hidden = true;
+  resultOverlay.hidden = true;
+  familyOverlay.hidden = true;
+  gameScreen.hidden = true;
+  homeScreen.hidden = false;
+  renderLevels();
+}
+
+function openFamilySpace() {
+  familyOverlay.hidden = false;
+  document.querySelector("#family-done").focus();
+}
+
+function holdFamilyButton(event) {
+  if (event.type === "pointerdown") event.currentTarget.setPointerCapture(event.pointerId);
+  window.clearTimeout(parentHoldTimer);
+  parentHoldTimer = window.setTimeout(openFamilySpace, 2000);
+}
+
+function cancelFamilyHold() {
+  window.clearTimeout(parentHoldTimer);
+}
+
+document.querySelectorAll("[data-age]").forEach((button) => {
+  button.addEventListener("click", () => chooseAge(button));
+});
+document.querySelector("#move-left").addEventListener("click", () => movePlayer(-1));
+document.querySelector("#move-right").addEventListener("click", () => movePlayer(1));
+raceScene.addEventListener("pointerdown", (event) => {
+  swipeStart = { x: event.clientX, y: event.clientY };
+});
+raceScene.addEventListener("pointerup", (event) => {
+  if (!swipeStart) return;
+  const deltaX = event.clientX - swipeStart.x;
+  const deltaY = event.clientY - swipeStart.y;
+  swipeStart = null;
+  if (Math.abs(deltaX) > 28 && Math.abs(deltaX) > Math.abs(deltaY)) movePlayer(deltaX < 0 ? -1 : 1);
+});
+raceScene.addEventListener("pointercancel", () => { swipeStart = null; });
+document.querySelector("#pause-button").addEventListener("click", () => {
+  paused = true;
+  cancelAnimationFrame(animationFrame);
+  pauseOverlay.hidden = false;
+  document.querySelector("#resume-button").focus();
+});
+document.querySelector("#resume-button").addEventListener("click", () => {
+  pauseOverlay.hidden = true;
+  paused = false;
+  lastFrame = performance.now();
+  animationFrame = requestAnimationFrame(runFrame);
+});
+document.querySelector("#pause-home-button").addEventListener("click", goHome);
+document.querySelector("#result-secondary").addEventListener("click", goHome);
+document.querySelector("#parent-button").addEventListener("pointerdown", holdFamilyButton);
+document.querySelector("#parent-button").addEventListener("pointerup", cancelFamilyHold);
+document.querySelector("#parent-button").addEventListener("pointerleave", cancelFamilyHold);
+document.querySelector("#parent-button").addEventListener("pointercancel", cancelFamilyHold);
+document.querySelector("#family-close").addEventListener("click", () => { familyOverlay.hidden = true; });
+document.querySelector("#family-done").addEventListener("click", () => { familyOverlay.hidden = true; });
+familyOverlay.addEventListener("click", (event) => {
+  if (event.target === familyOverlay) familyOverlay.hidden = true;
+});
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && cartDrawer.classList.contains("is-open")) closeCart();
+  if (event.key === "Escape" && !familyOverlay.hidden) familyOverlay.hidden = true;
+  if (gameScreen.hidden || paused) return;
+  if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") {
+    event.preventDefault();
+    movePlayer(-1);
+  } else if (event.key === "ArrowRight" || event.key.toLowerCase() === "d") {
+    event.preventDefault();
+    movePlayer(1);
+  }
 });
 
-renderCart();
+renderLevels();
 
-const currentYear = new Date().getFullYear();
-document.querySelectorAll("[data-current-year]").forEach((element) => {
-  element.textContent = currentYear;
-});
-const localToday = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
-document.querySelector("#bookingDate").min = localToday;
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  navigator.serviceWorker.register("./sw.js").catch((error) => {
+    console.warn("No se pudo preparar el modo sin conexión.", error);
+  });
+}
